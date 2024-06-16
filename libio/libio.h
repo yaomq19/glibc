@@ -427,9 +427,22 @@ extern _IO_wint_t __woverflow (_IO_FILE *, _IO_wint_t);
 #else
 # define _IO_BE(expr, res) (expr)
 #endif
+/*
+  _IO_BE ((_fp)->_IO_read_ptr >= (_fp)->_IO_read_end, 0) 
+  检查读指针是否已经到达或超过了读缓冲区的末尾
+  使用 _IO_BE 宏进行分支预测
+  (_fp)->_IO_read_ptr >= (_fp)->_IO_read_end 表示读指针已经到达或超过了读缓冲区的末尾
+  关键是 read_ptr >= read_end
+  
 
+  如果缓冲区为空，调用 __uflow 函数
+  __uflow (_fp)
+
+  如果缓冲区不为空，获取下一个字符
+  *(unsigned char *) (_fp)->_IO_read_ptr++
+*/
 #define _IO_getc_unlocked(_fp) \
-       (_IO_BE ((_fp)->_IO_read_ptr >= (_fp)->_IO_read_end, 0) \
+       (_IO_BE ((_fp)->_IO_read_ptr >= (_fp)->_IO_read_end, 0) \ 
 	? __uflow (_fp) : *(unsigned char *) (_fp)->_IO_read_ptr++)
 #define _IO_peekc_unlocked(_fp) \
        (_IO_BE ((_fp)->_IO_read_ptr >= (_fp)->_IO_read_end, 0) \
